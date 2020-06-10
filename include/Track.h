@@ -154,6 +154,10 @@ public:
 
 	MidiTime startTimeOffset() const;
 	void setStartTimeOffset( const MidiTime &startTimeOffset );
+	
+	void setBGColor( QColor &c );
+	QColor BGColor();
+	void resetColor();
 
 public slots:
 	void copy();
@@ -165,6 +169,9 @@ signals:
 	void lengthChanged();
 	void positionChanged();
 	void destroyedTCO();
+	
+	void trackColorChanged( QColor & );
+	void trackColorReset();
 
 
 private:
@@ -187,6 +194,9 @@ private:
 	bool m_autoResize;
 
 	bool m_selectViewOnCreate;
+	
+	QColor m_bgcolor;
+	
 
 	friend class TrackContentObjectView;
 
@@ -442,6 +452,9 @@ class TrackOperationsWidget : public QWidget
 public:
 	TrackOperationsWidget( TrackView * parent );
 	~TrackOperationsWidget();
+	
+	void setBackgroundColor( QColor & );
+	QColor backgroundColor();
 
 
 protected:
@@ -453,6 +466,8 @@ private slots:
 	void cloneTrack();
 	void removeTrack();
 	void updateMenu();
+	void changeTrackColor();
+	void resetTrackColor();
 	void toggleRecording(bool on);
 	void recordingOn();
 	void recordingOff();
@@ -466,12 +481,16 @@ private:
 	QPushButton * m_trackOps;
 	PixmapButton * m_muteBtn;
 	PixmapButton * m_soloBtn;
+	
+	QColor m_backgroundColor;
 
 
 	friend class TrackView;
 
 signals:
 	void trackRemovalScheduled( TrackView * t );
+	void colorChanged( QColor & c );
+	void colorReset();
 
 } ;
 
@@ -615,6 +634,9 @@ public slots:
 	}
 
 	void toggleSolo();
+	
+	void trackColorChanged( QColor & c );
+	void trackColorReset();
 
 
 private:

@@ -41,6 +41,7 @@
 #include "BBTrackContainer.h"
 #include "StringPairDrag.h"
 #include "MainWindow.h"
+#include "SongEditor.h"
 
 #include <limits>
 
@@ -56,7 +57,9 @@ Pattern::Pattern( InstrumentTrack * _instrument_track ) :
 	TrackContentObject( _instrument_track ),
 	m_instrumentTrack( _instrument_track ),
 	m_patternType( BeatPattern ),
-	m_steps( MidiTime::stepsPerBar() )
+	m_steps( MidiTime::stepsPerBar() ),
+	m_color( 128, 128, 128 ),
+	m_useStyleColor( true )
 {
 	setName( _instrument_track->name() );
 	if( _instrument_track->trackContainer()
@@ -75,7 +78,9 @@ Pattern::Pattern( const Pattern& other ) :
 	TrackContentObject( other.m_instrumentTrack ),
 	m_instrumentTrack( other.m_instrumentTrack ),
 	m_patternType( other.m_patternType ),
-	m_steps( other.m_steps )
+	m_steps( other.m_steps ),
+	m_color( 128, 128, 128 ),
+	m_useStyleColor( true )
 {
 	for( NoteVector::ConstIterator it = other.m_notes.begin(); it != other.m_notes.end(); ++it )
 	{
@@ -359,6 +364,10 @@ void Pattern::saveSettings( QDomDocument & _doc, QDomElement & _this )
 {
 	_this.setAttribute( "type", m_patternType );
 	_this.setAttribute( "name", name() );
+	
+	_this.setAttribute ("stylecolor", m_useStyleColor);
+	_this.setAttribute ("color", m_color.rgb());
+	
 	// as the target of copied/dragged pattern is always an existing
 	// pattern, we must not store actual position, instead we store -1
 	// which tells loadSettings() not to mess around with position
@@ -418,6 +427,12 @@ void Pattern::loadSettings( const QDomElement & _this )
 	if( m_steps == 0 )
 	{
 		m_steps = MidiTime::stepsPerBar();
+	}
+
+	if (_this.hasAttribute("stylecolor"))
+	{
+		m_useStyleColor = _this.attribute("stylecolor").toInt();
+		setColor(QColor(_this.attribute("color").toUInt()));
 	}
 
 	checkType();
@@ -586,6 +601,11 @@ PatternView::PatternView( Pattern* pattern, TrackView* parent ) :
 {
 	connect( gui->pianoRoll(), SIGNAL( currentPatternChanged() ),
 			this, SLOT( update() ) );
+	
+	connect( m_pat, SIGNAL( trackColorChanged( QColor & ) ), 
+			this, SLOT( trackColorChanged( QColor & ) ) );
+	connect( m_pat, SIGNAL( trackColorReset() ),
+			this, SLOT( resetColor() ) );
 
 	if( s_stepBtnOn0 == NULL )
 	{
@@ -610,7 +630,7 @@ PatternView::PatternView( Pattern* pattern, TrackView* parent ) :
 		s_stepBtnOffLight = new QPixmap( embed::getIconPixmap(
 						"step_btn_off_light" ) );
 	}
-
+	
 	update();
 
 	setStyle( QApplication::style() );
@@ -663,6 +683,82 @@ void PatternView::changeName()
 	RenameDialog rename_dlg( s );
 	rename_dlg.exec();
 	m_pat->setName( s );
+}
+
+/*
+void PatternView::changeColor()
+{
+	QColor new_color = QColorDialog::getColor( m_pat->m_color );
+	if( ! new_color.isValid() )
+	{
+		return;
+	}
+	if( isSelected() )
+	{
+		QVector<selectableObject *> selected =
+				gui->songEditor()->m_editor->selectedObjects();
+		for( QVector<selectableObject *>::iterator it =
+							selected.begin();
+						it != selected.end(); ++it )
+		{
+			PatternView * pat_tcov = dynamic_cast<PatternView *>( *it );
+			if( pat_tcov )
+			{
+				pat_tcov->setColor( new_color );
+			}
+		}
+	}
+	else
+	{
+		setColor( new_color );
+	}
+}*/
+
+void PatternView::resetColor()
+{
+	if( ! m_pat->m_useStyleColor )
+	{
+		m_pat->m_useStyleColor = true;
+		Engine::getSong()->setModified();
+		update();
+	}
+	//BBTrack::clearLastTCOColor();
+}
+
+void PatternView::setColor( QColor new_color )
+{
+	if( new_color.rgb() != m_pat->color() )
+	{
+		m_pat->setColor( new_color );
+		m_pat->m_useStyleColor = false;
+		Engine::getSong()->setModified();
+		update();
+	}
+	//BBTrack::setLastTCOColor( new_color );
+}
+
+
+void PatternView::trackColorChanged( QColor & c )
+{
+	if( isSelected() )
+	{
+		QVector<selectableObject *> selected =
+				gui->songEditor()->m_editor->selectedObjects();
+		for( QVector<selectableObject *>::iterator it =
+							selected.begin();
+						it != selected.end(); ++it )
+		{
+			PatternView * pat_tcov = dynamic_cast<PatternView *>( *it );
+			if( pat_tcov )
+			{
+				pat_tcov->setColor( c );
+			}
+		}
+	}
+	else
+	{
+		setColor( c );
+	}
 }
 
 
@@ -864,9 +960,13 @@ void PatternView::paintEvent( QPaintEvent * )
 	bool beatPattern = m_pat->m_patternType == Pattern::BeatPattern;
 
 	// state: selected, normal, beat pattern, muted
-	QColor c = isSelected() ? selectedColor() : ( ( !muted && !beatPattern )
+	/*QColor c = isSelected() ? selectedColor() : ( ( !muted && !beatPattern )
 		? painter.background().color() : ( beatPattern
-		? BBPatternBackground() : mutedBackgroundColor() ) );
+		? m_pat->colorObj() : mutedBackgroundColor() ) );*/
+	QColor c = isSelected() ? selectedColor() : ( muted ? mutedBackgroundColor()
+			: ( m_pat->m_useStyleColor ? painter.background().color()
+			: m_pat->colorObj() ) );
+
 
 	// invert the gradient for the background in the B&B editor
 	QLinearGradient lingrad( 0, 0, 0, height() );

@@ -39,6 +39,7 @@
 
 #include <assert.h>
 
+#include <QColorDialog>
 #include <QLayout>
 #include <QMenu>
 #include <QMouseEvent>
@@ -245,6 +246,21 @@ void TrackContentObject::setStartTimeOffset( const MidiTime &startTimeOffset )
 	m_startTimeOffset = startTimeOffset;
 }
 
+void TrackContentObject::setBGColor( QColor & c )
+{
+	m_bgcolor = c;
+	emit trackColorChanged( m_bgcolor );
+}
+
+QColor TrackContentObject::BGColor()
+{
+	return m_bgcolor;
+}
+
+void TrackContentObject::resetColor()
+{
+	emit trackColorReset();
+}
 
 
 
@@ -774,12 +790,12 @@ void TrackContentObjectView::mousePressEvent( QMouseEvent * me )
 					m_action = ResizeLeft;
 					setCursor( Qt::SizeHorCursor );
 				}
-				else if( me->x() < width() - RESIZE_GRIP_WIDTH )
+				else if( m_tco->getAutoResize() || me->x() < width() - RESIZE_GRIP_WIDTH )
 				{
 					m_action = Move;
 					setCursor( Qt::SizeAllCursor );
 				}
-				else if( !m_tco->getAutoResize() )
+				else
 				{
 					m_action = Resize;
 					setCursor( Qt::SizeHorCursor );
@@ -813,6 +829,31 @@ void TrackContentObjectView::mousePressEvent( QMouseEvent * me )
 				s_textFloat->show();
 			}
 
+		if( m_tco->getAutoResize() || me->x() < width() - RESIZE_GRIP_WIDTH )
+		{
+			m_action = Move;
+			setCursor( Qt::SizeAllCursor );
+			delete m_hint;
+			m_hint = TextFloat::displayMessage( tr( "Hint" ),
+					tr( "Press <%1> and drag to make "
+							"a copy." ).arg(
+								#ifdef LMMS_BUILD_APPLE
+								"⌘"),
+								#else
+								"Ctrl"),
+								#endif
+					embed::getIconPixmap( "hint" ), 0 );
+			s_textFloat->setTitle( tr( "Current position" ) );
+			s_textFloat->setText( QString( "%1:%2" ).
+					arg( m_tco->startPosition().getTact() + 1 ).
+					arg( m_tco->startPosition().getTicks() %
+							MidiTime::ticksPerTact() ) );
+			s_textFloat->moveGlobal( this, QPoint( width() + 2, height() + 2 ) );
+		}
+		else
+		{
+			m_action = Resize;
+			setCursor( Qt::SizeHorCursor );
 			delete m_hint;
 			QString hint = m_action == Move || m_action == MoveSelection
 						? tr( "Press <%1> and drag to make a copy." )
@@ -1824,7 +1865,6 @@ void TrackContentWidget::setGridColor( const QBrush & c )
 void TrackContentWidget::setEmbossColor( const QBrush & c )
 { m_embossColor = c; }
 
-
 // ===========================================================================
 // trackOperationsWidget
 // ===========================================================================
@@ -2017,6 +2057,28 @@ void TrackOperationsWidget::removeTrack()
 }
 
 
+void TrackOperationsWidget::setBackgroundColor( QColor & c )
+{ m_backgroundColor = c; }
+QColor TrackOperationsWidget::backgroundColor()
+{ return m_backgroundColor; }
+
+
+void TrackOperationsWidget::changeTrackColor()
+{
+	QColor new_color = QColorDialog::getColor( QPalette::Background );
+	if( ! new_color.isValid() )
+	{
+		return;
+	}
+	m_backgroundColor = new_color;
+	emit colorChanged( m_backgroundColor );
+}
+
+void TrackOperationsWidget::resetTrackColor()
+{
+	m_backgroundColor = QPalette::Background;
+	emit colorReset();
+}
 
 
 /*! \brief Update the trackOperationsWidget context menu
@@ -2057,6 +2119,12 @@ void TrackOperationsWidget::updateMenu()
 		toMenu->addAction( tr( "Turn all recording on" ), this, SLOT( recordingOn() ) );
 		toMenu->addAction( tr( "Turn all recording off" ), this, SLOT( recordingOff() ) );
 	}
+	
+	toMenu->addSeparator();
+	toMenu->addAction( embed::getIconPixmap( "colorize" ),
+						tr( "Change color" ), this, SLOT( changeTrackColor() ) );
+	toMenu->addAction( embed::getIconPixmap( "colorize" ),
+						tr( "Reset color to default" ), this, SLOT( resetTrackColor() ) );
 }
 
 
@@ -2668,6 +2736,27 @@ void Track::toggleSolo()
 
 
 
+void Track::trackColorChanged ( QColor & c )
+{
+	for (int i = 0; i < numOfTCOs(); i++)
+	{
+		m_trackContentObjects[i]->setBGColor(c);
+	}
+}
+
+
+void Track::trackColorReset ()
+{
+	for (int i = 0; i < numOfTCOs(); i++)
+	{
+		m_trackContentObjects[i]->resetColor();
+	}
+}
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 4f42784ab... Enable track-wide color coding
 
 BoolModel *Track::getMutedModel()
 {
@@ -2737,6 +2826,13 @@ TrackView::TrackView( Track * track, TrackContainerView * tcv ) :
 
 	connect( &m_track->m_soloModel, SIGNAL( dataChanged() ),
 			m_track, SLOT( toggleSolo() ), Qt::DirectConnection );
+	
+	connect( &m_trackOperationsWidget, SIGNAL( colorChanged( QColor & ) ),
+			m_track, SLOT( trackColorChanged( QColor & ) ) );
+	
+	connect( &m_trackOperationsWidget, SIGNAL( colorReset() ),
+			m_track, SLOT( trackColorReset() ) );
+	
 	// create views for already existing TCOs
 	for( Track::tcoVector::iterator it =
 					m_track->m_trackContentObjects.begin();

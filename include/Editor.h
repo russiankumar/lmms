@@ -58,6 +58,10 @@ protected slots:
 private slots:
 	/// Called by pressing the space key. Plays or stops.
 	void togglePlayStop();
+	
+	/// Called by pressing shift+space. Toggles pause state.
+	void togglePause();
+	void toggleMaximise();
 
 signals:
 

@@ -159,6 +159,19 @@ public:
 
 	static int quantization() { return s_quantization; }
 	static void setQuantization(int q) { s_quantization = q; }
+	
+	QColor colorObj() const
+	{
+		return m_color;
+	}
+	unsigned int color() const
+	{
+		return( m_color.rgb() );
+	}
+	void setColor( const QColor & c )
+	{
+		m_color = QColor( c );
+	}
 
 public slots:
 	void clear();
@@ -192,6 +205,9 @@ private:
 
 	static const float DEFAULT_MIN_VALUE;
 	static const float DEFAULT_MAX_VALUE;
+
+	bool m_useStyleColor;
+	QColor m_color;
 
 	friend class AutomationPatternView;
 
