@@ -1,0 +1,3 @@
+INCLUDE(BuildPlugin)
+
+BUILD_PLUGIN(nes Nes.cpp Nes.h MOCFILES Nes.h EMBEDDED_RESOURCES *.png)
