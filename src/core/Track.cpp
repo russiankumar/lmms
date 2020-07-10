@@ -2752,11 +2752,7 @@ void Track::trackColorReset ()
 		m_trackContentObjects[i]->resetColor();
 	}
 }
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 4f42784ab... Enable track-wide color coding
 
 BoolModel *Track::getMutedModel()
 {

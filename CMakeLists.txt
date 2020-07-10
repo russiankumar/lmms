@@ -76,7 +76,7 @@ OPTION(WANT_VST		"Include VST support" ON)
 OPTION(WANT_VST_32	"Include 32-bit VST support" ON)
 OPTION(WANT_VST_64	"Include 64-bit VST support" ON)
 OPTION(WANT_WINMM	"Include WinMM MIDI support" OFF)
-OPTION(WANT_QT5		"Build with Qt5" OFF)
+OPTION(WANT_DEBUG_FPE	"Debug floating point exceptions" OFF)
 OPTION(BUNDLE_QT_TRANSLATIONS	"Install Qt translation files for LMMS" OFF)
 
 
