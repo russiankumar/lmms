@@ -364,6 +364,10 @@ void Pattern::saveSettings( QDomDocument & _doc, QDomElement & _this )
 {
 	_this.setAttribute( "type", m_patternType );
 	_this.setAttribute( "name", name() );
+	
+	_this.setAttribute ("stylecolor", m_useStyleColor);
+	_this.setAttribute ("color", m_color.rgb());
+	
 	// as the target of copied/dragged pattern is always an existing
 	// pattern, we must not store actual position, instead we store -1
 	// which tells loadSettings() not to mess around with position
@@ -423,6 +427,12 @@ void Pattern::loadSettings( const QDomElement & _this )
 	if( m_steps == 0 )
 	{
 		m_steps = MidiTime::stepsPerBar();
+	}
+
+	if (_this.hasAttribute("stylecolor"))
+	{
+		m_useStyleColor = _this.attribute("stylecolor").toInt();
+		setColor(QColor(_this.attribute("color").toUInt()));
 	}
 
 	checkType();
@@ -594,6 +604,8 @@ PatternView::PatternView( Pattern* pattern, TrackView* parent ) :
 	
 	connect( m_pat, SIGNAL( trackColorChanged( QColor & ) ), 
 			this, SLOT( trackColorChanged( QColor & ) ) );
+	connect( m_pat, SIGNAL( trackColorReset() ),
+			this, SLOT( resetColor() ) );
 
 	if( s_stepBtnOn0 == NULL )
 	{
@@ -701,6 +713,17 @@ void PatternView::changeColor()
 		setColor( new_color );
 	}
 }*/
+
+void PatternView::resetColor()
+{
+	if( ! m_pat->m_useStyleColor )
+	{
+		m_pat->m_useStyleColor = true;
+		Engine::getSong()->setModified();
+		update();
+	}
+	//BBTrack::clearLastTCOColor();
+}
 
 
 void PatternView::setColor( QColor new_color )

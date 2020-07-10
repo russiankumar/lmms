@@ -157,6 +157,7 @@ public:
 	
 	void setBGColor( QColor &c );
 	QColor BGColor();
+	void resetColor();
 
 public slots:
 	void copy();
@@ -168,7 +169,9 @@ signals:
 	void lengthChanged();
 	void positionChanged();
 	void destroyedTCO();
+	
 	void trackColorChanged( QColor & );
+	void trackColorReset();
 
 
 private:
@@ -487,6 +490,7 @@ private:
 signals:
 	void trackRemovalScheduled( TrackView * t );
 	void colorChanged( QColor & c );
+	void colorReset();
 
 } ;
 
@@ -632,6 +636,7 @@ public slots:
 	void toggleSolo();
 	
 	void trackColorChanged( QColor & c );
+	void trackColorReset();
 
 
 private:

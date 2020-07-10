@@ -53,6 +53,11 @@ AutomationPatternView::AutomationPatternView( AutomationPattern * _pattern,
 			this, SLOT( update() ) );
 	connect( gui->automationEditor(), SIGNAL( currentPatternChanged() ),
 			this, SLOT( update() ) );
+	
+	connect( m_pat, SIGNAL( trackColorChanged( QColor & ) ), 
+			this, SLOT( trackColorChanged( QColor & ) ) );
+	connect( m_pat, SIGNAL( trackColorReset() ),
+			this, SLOT( resetColor() ) );
 
 	setAttribute( Qt::WA_OpaquePaintEvent, true );
 
@@ -261,8 +266,11 @@ void AutomationPatternView::paintEvent( QPaintEvent * )
 	bool current = gui->automationEditor()->currentPattern() == m_pat;
 	
 	// state: selected, muted, normal
+	/*c = isSelected() ? selectedColor() : ( muted ? mutedBackgroundColor() 
+		:	painter.background().color() );*/
 	c = isSelected() ? selectedColor() : ( muted ? mutedBackgroundColor() 
-		:	painter.background().color() );
+		: ( m_pat->m_useStyleColor ? painter.background().color() 
+		: m_pat->colorObj() ) );
 
 	lingrad.setColorAt( 1, c.darker( 300 ) );
 	lingrad.setColorAt( 0, c );
@@ -496,3 +504,49 @@ void AutomationPatternView::scaleTimemapToFit( float oldMin, float oldMax )
 
 	m_pat->generateTangents();
 }
+
+void AutomationPatternView::resetColor()
+{
+	if( ! m_pat->m_useStyleColor )
+	{
+		m_pat->m_useStyleColor = true;
+		Engine::getSong()->setModified();
+		update();
+	}
+	//BBTrack::clearLastTCOColor();
+}
+
+void AutomationPatternView::setColor( QColor new_color )
+{
+	if( new_color.rgb() != m_pat->color() )
+	{
+		m_pat->setColor( new_color );
+		m_pat->m_useStyleColor = false;
+		Engine::getSong()->setModified();
+		update();
+	}
+}
+
+void AutomationPatternView::trackColorChanged( QColor & c )
+{
+	if( isSelected() )
+	{
+		QVector<selectableObject *> selected =
+				gui->songEditor()->m_editor->selectedObjects();
+		for( QVector<selectableObject *>::iterator it =
+							selected.begin();
+						it != selected.end(); ++it )
+		{
+			AutomationPatternView * a_cov = dynamic_cast<AutomationPatternView *>( *it );
+			if( a_cov )
+			{
+				a_cov->setColor( c );
+			}
+		}
+	}
+	else
+	{
+		setColor( c );
+	}
+}
+

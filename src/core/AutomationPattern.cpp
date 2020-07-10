@@ -49,7 +49,9 @@ AutomationPattern::AutomationPattern( AutomationTrack * _auto_track ) :
 	m_progressionType( DiscreteProgression ),
 	m_dragging( false ),
 	m_isRecording( false ),
-	m_lastRecordedValue( 0 )
+	m_lastRecordedValue( 0 ),
+	m_useStyleColor( true ),
+	m_color( 128, 128, 128 )
 {
 	changeLength( MidiTime( 1, 0 ) );
 	if( getTrack() )
@@ -77,7 +79,9 @@ AutomationPattern::AutomationPattern( const AutomationPattern & _pat_to_copy ) :
 	m_autoTrack( _pat_to_copy.m_autoTrack ),
 	m_objects( _pat_to_copy.m_objects ),
 	m_tension( _pat_to_copy.m_tension ),
-	m_progressionType( _pat_to_copy.m_progressionType )
+	m_progressionType( _pat_to_copy.m_progressionType ),
+	m_useStyleColor( true ),
+	m_color( 128, 128, 128 )
 {
 	for( timeMap::const_iterator it = _pat_to_copy.m_timeMap.begin();
 				it != _pat_to_copy.m_timeMap.end(); ++it )
@@ -559,6 +563,9 @@ void AutomationPattern::saveSettings( QDomDocument & _doc, QDomElement & _this )
 			_this.appendChild( element );
 		}
 	}
+	
+	_this.setAttribute ("stylecolor", m_useStyleColor);
+	_this.setAttribute ("color", m_color.rgb());
 }
 
 
@@ -604,6 +611,14 @@ void AutomationPattern::loadSettings( const QDomElement & _this )
 	{
 		changeLength( len );
 	}
+	
+	
+	if (_this.hasAttribute("stylecolor"))
+	{
+		m_useStyleColor = _this.attribute("stylecolor").toInt();
+		setColor(QColor(_this.attribute("color").toUInt()));
+	}
+	
 	generateTangents();
 }
 

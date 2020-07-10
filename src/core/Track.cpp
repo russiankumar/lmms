@@ -257,6 +257,11 @@ QColor TrackContentObject::BGColor()
 	return m_bgcolor;
 }
 
+void TrackContentObject::resetColor()
+{
+	emit trackColorReset();
+}
+
 
 
 
@@ -2048,7 +2053,7 @@ void TrackOperationsWidget::changeTrackColor()
 void TrackOperationsWidget::resetTrackColor()
 {
 	m_backgroundColor = QPalette::Background;
-	emit colorChanged( m_backgroundColor );
+	emit colorReset();
 }
 
 
@@ -2716,6 +2721,15 @@ void Track::trackColorChanged ( QColor & c )
 }
 
 
+void Track::trackColorReset ()
+{
+	for (int i = 0; i < numOfTCOs(); i++)
+	{
+		m_trackContentObjects[i]->resetColor();
+	}
+}
+
+
 
 BoolModel *Track::getMutedModel()
 {
@@ -2788,6 +2802,9 @@ TrackView::TrackView( Track * track, TrackContainerView * tcv ) :
 	
 	connect( &m_trackOperationsWidget, SIGNAL( colorChanged( QColor & ) ),
 			m_track, SLOT( trackColorChanged( QColor & ) ) );
+	
+	connect( &m_trackOperationsWidget, SIGNAL( colorReset() ),
+			m_track, SLOT( trackColorReset() ) );
 	
 	// create views for already existing TCOs
 	for( Track::tcoVector::iterator it =

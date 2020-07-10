@@ -224,6 +224,7 @@ protected slots:
 	void changeName();
 	
 	void trackColorChanged( QColor & );
+	void resetColor();
 
 
 protected:

@@ -132,6 +132,7 @@ public slots:
 	void updateSample();
 	
 	//void changeColor();
+	void resetColor();
 	void trackColorChanged( QColor & );
 
 

@@ -277,6 +277,9 @@ void SampleTCO::saveSettings( QDomDocument & _doc, QDomElement & _this )
 	}
 
 	_this.setAttribute ("sample_rate", m_sampleBuffer->sampleRate());
+	
+	_this.setAttribute ("stylecolor", m_useStyleColor);
+	_this.setAttribute ("color", m_color.rgb());
 	// TODO: start- and end-frame
 }
 
@@ -300,6 +303,12 @@ void SampleTCO::loadSettings( const QDomElement & _this )
 
 	if (_this.hasAttribute("sample_rate")) {
 		m_sampleBuffer->setSampleRate(_this.attribute("sample_rate").toInt());
+	}
+	
+	if (_this.hasAttribute("stylecolor"))
+	{
+		m_useStyleColor = _this.attribute("stylecolor").toInt();
+		setColor(QColor(_this.attribute("color").toUInt()));
 	}
 }
 
@@ -327,6 +336,8 @@ SampleTCOView::SampleTCOView( SampleTCO * _tco, TrackView * _tv ) :
 	
 	connect( m_tco, SIGNAL( trackColorChanged( QColor & ) ), 
 			this, SLOT( trackColorChanged( QColor & ) ) );
+	connect( m_tco, SIGNAL( trackColorReset() ),
+			this, SLOT( resetColor() ) );
 
 	setStyle( QApplication::style() );
 }
@@ -588,6 +599,17 @@ void SampleTCOView::paintEvent( QPaintEvent * pe )
 	painter.drawPixmap( 0, 0, m_paintPixmap );
 }
 
+void SampleTCOView::resetColor()
+{
+	if( ! m_tco->m_useStyleColor )
+	{
+		m_tco->m_useStyleColor = true;
+		Engine::getSong()->setModified();
+		update();
+	}
+	//BBTrack::clearLastTCOColor();
+}
+
 void SampleTCOView::setColor( QColor new_color )
 {
 	if( new_color.rgb() != m_tco->color() )
@@ -597,7 +619,6 @@ void SampleTCOView::setColor( QColor new_color )
 		Engine::getSong()->setModified();
 		update();
 	}
-	cout << "Sample track color change triggered\n";
 }
 
 void SampleTCOView::trackColorChanged( QColor & c )
