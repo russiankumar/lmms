@@ -51,7 +51,7 @@ AutomationPatternView::AutomationPatternView( AutomationPattern * _pattern,
 {
 	connect( m_pat, SIGNAL( dataChanged() ),
 			this, SLOT( update() ) );
-	connect( gui->automationEditor(), SIGNAL( currentPatternChanged() ),
+	connect( gui->automationEditor(), SIGNAL( currentClipChanged() ),
 			this, SLOT( update() ) );
 
 	setAttribute( Qt::WA_OpaquePaintEvent, true );
@@ -256,7 +256,7 @@ void AutomationPatternView::paintEvent( QPaintEvent * )
 	QLinearGradient lingrad( 0, 0, 0, height() );
 	QColor c = getColorForDisplay( painter.background().color() );
 	bool muted = m_pat->getTrack()->isMuted() || m_pat->isMuted();
-	bool current = gui->automationEditor()->currentPattern() == m_pat;
+	bool current = gui->automationEditor()->currentClip() == m_pat;
 
 	lingrad.setColorAt( 1, c.darker( 300 ) );
 	lingrad.setColorAt( 0, c );
@@ -447,9 +447,9 @@ void AutomationPatternView::dropEvent( QDropEvent * _de )
 		update();
 
 		if( gui->automationEditor() &&
-			gui->automationEditor()->currentPattern() == m_pat )
+			gui->automationEditor()->currentClip() == m_pat )
 		{
-			gui->automationEditor()->setCurrentPattern( m_pat );
+			gui->automationEditor()->setCurrentClip( m_pat );
 		}
 	}
 	else

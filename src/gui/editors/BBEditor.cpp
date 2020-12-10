@@ -37,7 +37,7 @@
 #include "Song.h"
 #include "StringPairDrag.h"
 
-#include "Pattern.h"
+#include "Clip.h"
 
 
 
@@ -196,7 +196,7 @@ void BBTrackContainerView::removeSteps()
 	{
 		if( ( *it )->type() == Track::InstrumentTrack )
 		{
-			Pattern* p = static_cast<Pattern *>( ( *it )->getTCO( m_bbtc->currentBB() ) );
+			Clip* p = static_cast<Clip *>( ( *it )->getTCO( m_bbtc->currentBB() ) );
 			p->removeSteps();
 		}
 	}
@@ -304,7 +304,7 @@ void BBTrackContainerView::makeSteps( bool clone )
 	{
 		if( ( *it )->type() == Track::InstrumentTrack )
 		{
-			Pattern* p = static_cast<Pattern *>( ( *it )->getTCO( m_bbtc->currentBB() ) );
+			Clip* p = static_cast<Clip *>( ( *it )->getTCO( m_bbtc->currentBB() ) );
 			if( clone )
 			{
 				p->cloneSteps();

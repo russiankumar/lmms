@@ -39,7 +39,7 @@
 #include "AutomationTrack.h"
 #include "AutomationPattern.h"
 #include "ConfigManager.h"
-#include "Pattern.h"
+#include "Clip.h"
 #include "Instrument.h"
 #include "GuiApplication.h"
 #include "MainWindow.h"
@@ -221,7 +221,7 @@ public:
 	{ }
 	
 	InstrumentTrack * it;
-	Pattern* p;
+	Clip* p;
 	Instrument * it_inst;
 	bool isSF2; 
 	bool hasNotes;
@@ -259,7 +259,7 @@ public:
 			it->pitchRangeModel()->setInitValue( 2 );
 
 			// Create a default pattern
-			p = dynamic_cast<Pattern*>(it->createTCO(0));
+			p = dynamic_cast<Clip*>(it->createTCO(0));
 		}
 		return this;
 	}
@@ -269,7 +269,7 @@ public:
 	{
 		if (!p)
 		{
-			p = dynamic_cast<Pattern*>(it->createTCO(0));
+			p = dynamic_cast<Clip*>(it->createTCO(0));
 		}
 		p->addNote(n, false);
 		hasNotes = true;
@@ -277,7 +277,7 @@ public:
 
 	void splitPatterns()
 	{
-		Pattern * newPattern = nullptr;
+		Clip * newPattern = nullptr;
 		TimePos lastEnd(0);
 
 		p->rearrangeAllNotes();
@@ -286,7 +286,7 @@ public:
 			if (!newPattern || n->pos() > lastEnd + DefaultTicksPerBar)
 			{
 				TimePos pPos = TimePos(n->pos().getBar(), 0);
-				newPattern = dynamic_cast<Pattern*>(it->createTCO(pPos));
+				newPattern = dynamic_cast<Clip*>(it->createTCO(pPos));
 			}
 			lastEnd = n->pos() + n->length();
 

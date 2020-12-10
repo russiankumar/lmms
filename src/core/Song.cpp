@@ -39,6 +39,7 @@
 #include "BBEditor.h"
 #include "BBTrack.h"
 #include "BBTrackContainer.h"
+#include "Clip.h"
 #include "ConfigManager.h"
 #include "ControllerRackView.h"
 #include "ControllerConnection.h"
@@ -50,7 +51,6 @@
 #include "ExportFilter.h"
 #include "InstrumentTrack.h"
 #include "NotePlayHandle.h"
-#include "Pattern.h"
 #include "PianoRoll.h"
 #include "ProjectJournal.h"
 #include "ProjectNotes.h"
@@ -224,7 +224,7 @@ void Song::processNextBuffer()
 			}
 			break;
 
-		case Mode_PlayPattern:
+		case Mode_PlayClip:
 			if (m_patternToPlay)
 			{
 				clipNum = m_patternToPlay->getTrack()->getTCONum(m_patternToPlay);
@@ -291,7 +291,7 @@ void Song::processNextBuffer()
 			{
 				enforceLoop(TimePos{0}, TimePos{Engine::getBBTrackContainer()->lengthOfCurrentBB(), 0});
 			}
-			else if (m_playMode == Mode_PlayPattern && m_loopPattern && !loopEnabled)
+			else if (m_playMode == Mode_PlayClip && m_loopPattern && !loopEnabled)
 			{
 				enforceLoop(TimePos{0}, m_patternToPlay->length());
 			}
@@ -520,7 +520,7 @@ void Song::playBB()
 
 
 
-void Song::playPattern( const Pattern* patternToPlay, bool loop )
+void Song::playPattern( const Clip* patternToPlay, bool loop )
 {
 	if( isStopped() == false )
 	{
@@ -532,7 +532,7 @@ void Song::playPattern( const Pattern* patternToPlay, bool loop )
 
 	if( m_patternToPlay != NULL )
 	{
-		m_playMode = Mode_PlayPattern;
+		m_playMode = Mode_PlayClip;
 		m_playing = true;
 		m_paused = false;
 	}
@@ -853,7 +853,7 @@ void Song::clearProject()
 
 	if( gui && gui->automationEditor() )
 	{
-		gui->automationEditor()->setCurrentPattern( NULL );
+		gui->automationEditor()->setCurrentClip( NULL );
 	}
 
 	if( gui && gui->pianoRoll() )

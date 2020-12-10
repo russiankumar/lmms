@@ -61,9 +61,9 @@ class AutomationEditor : public QWidget, public JournallingObject
 	Q_PROPERTY(QColor crossColor READ crossColor WRITE setCrossColor)
 	Q_PROPERTY(QColor backgroundShade READ backgroundShade WRITE setBackgroundShade)
 public:
-	void setCurrentPattern(AutomationPattern * new_pattern);
+	void setCurrentClip(AutomationPattern * new_pattern);
 
-	inline const AutomationPattern * currentPattern() const
+	inline const AutomationPattern * currentClip() const
 	{
 		return m_pattern;
 	}
@@ -264,7 +264,7 @@ private:
 
 
 signals:
-	void currentPatternChanged();
+	void currentClipChanged();
 	void positionChanged( const TimePos & );
 } ;
 
@@ -281,8 +281,8 @@ public:
 	AutomationEditorWindow();
 	~AutomationEditorWindow();
 
-	void setCurrentPattern(AutomationPattern* pattern);
-	const AutomationPattern* currentPattern();
+	void setCurrentClip(AutomationPattern* pattern);
+	const AutomationPattern* currentClip();
 
 	void dropEvent( QDropEvent * _de ) override;
 	void dragEnterEvent( QDragEnterEvent * _dee ) override;
@@ -297,7 +297,7 @@ public slots:
 	void clearCurrentPattern();
 
 signals:
-	void currentPatternChanged();
+	void currentClipChanged();
 
 protected:
 	void focusInEvent(QFocusEvent * event) override;

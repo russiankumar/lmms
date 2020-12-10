@@ -40,6 +40,7 @@
 #include "AutomationPattern.h"
 #include "BBTrack.h"
 #include "CaptionMenu.h"
+#include "Clip.h"
 #include "ConfigManager.h"
 #include "ControllerConnection.h"
 #include "DataFile.h"
@@ -66,7 +67,6 @@
 #include "MidiPortMenu.h"
 #include "Mixer.h"
 #include "MixHelpers.h"
-#include "Pattern.h"
 #include "PluginFactory.h"
 #include "PluginView.h"
 #include "SamplePlayHandle.h"
@@ -180,7 +180,7 @@ InstrumentTrack::~InstrumentTrack()
 void InstrumentTrack::processAudioBuffer( sampleFrame* buf, const fpp_t frames, NotePlayHandle* n )
 {
 	// we must not play the sound if this InstrumentTrack is muted...
-	if( isMuted() || ( Engine::getSong()->playMode() != Song::Mode_PlayPattern &&
+	if( isMuted() || ( Engine::getSong()->playMode() != Song::Mode_PlayClip &&
 				n && n->isBbTrackMuted() ) || ! m_instrument )
 	{
 		return;
@@ -686,11 +686,11 @@ bool InstrumentTrack::play( const TimePos & _start, const fpp_t _frames,
 
 	for( tcoVector::Iterator it = tcos.begin(); it != tcos.end(); ++it )
 	{
-		Pattern* p = dynamic_cast<Pattern*>( *it );
+		Clip* p = dynamic_cast<Clip*>( *it );
 		// everything which is not a pattern won't be played
 		// A pattern playing in the Piano Roll window will always play
 		if(p == NULL ||
-			(Engine::getSong()->playMode() != Song::Mode_PlayPattern
+			(Engine::getSong()->playMode() != Song::Mode_PlayClip
 			&& (*it)->isMuted()))
 		{
 			continue;
@@ -750,7 +750,7 @@ bool InstrumentTrack::play( const TimePos & _start, const fpp_t _frames,
 
 TrackContentObject* InstrumentTrack::createTCO(const TimePos & pos)
 {
-	Pattern* p = new Pattern(this);
+	Clip* p = new Clip(this);
 	p->movePosition(pos);
 	return p;
 }

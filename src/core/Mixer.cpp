@@ -352,7 +352,7 @@ const surroundSampleFrame * Mixer::renderNextBuffer()
 	Song::PlayModes currentPlayMode = song->playMode();
 	Song::PlayPos p = song->getPlayPos( currentPlayMode );
 
-	bool playModeSupportsMetronome = currentPlayMode == Song::Mode_PlayPattern ||
+	bool playModeSupportsMetronome = currentPlayMode == Song::Mode_PlayClip ||
 					 currentPlayMode == Song::Mode_PlaySong ||
 					 currentPlayMode == Song::Mode_PlayBB;
 

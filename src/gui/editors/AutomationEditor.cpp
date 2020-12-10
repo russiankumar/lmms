@@ -110,7 +110,7 @@ AutomationEditor::AutomationEditor() :
 	m_crossColor( 0, 0, 0 ),
 	m_backgroundShade( 0, 0, 0 )
 {
-	connect( this, SIGNAL( currentPatternChanged() ),
+	connect( this, SIGNAL( currentClipChanged() ),
 				this, SLOT( updateAfterPatternChange() ),
 				Qt::QueuedConnection );
 	connect( Engine::getSong(), SIGNAL( timeSignatureChanged( int, int ) ),
@@ -191,7 +191,7 @@ AutomationEditor::AutomationEditor() :
 							"edit_move" ) );
 	}
 
-	setCurrentPattern( NULL );
+	setCurrentClip( NULL );
 
 	setMouseTracking( true );
 	setFocusPolicy( Qt::StrongFocus );
@@ -214,7 +214,7 @@ AutomationEditor::~AutomationEditor()
 
 
 
-void AutomationEditor::setCurrentPattern(AutomationPattern * new_pattern )
+void AutomationEditor::setCurrentClip(AutomationPattern * new_pattern )
 {
 	if (m_pattern)
 	{
@@ -230,7 +230,7 @@ void AutomationEditor::setCurrentPattern(AutomationPattern * new_pattern )
 		connect(m_pattern, SIGNAL(dataChanged()), this, SLOT(update()));
 	}
 
-	emit currentPatternChanged();
+	emit currentClipChanged();
 }
 
 
@@ -1789,10 +1789,10 @@ void AutomationEditor::play()
 
 	if( !m_pattern->getTrack() )
 	{
-		if( Engine::getSong()->playMode() != Song::Mode_PlayPattern )
+		if( Engine::getSong()->playMode() != Song::Mode_PlayClip )
 		{
 			Engine::getSong()->stop();
-			Engine::getSong()->playPattern( gui->pianoRoll()->currentPattern() );
+			Engine::getSong()->playPattern( gui->pianoRoll()->currentClip() );
 		}
 		else if( Engine::getSong()->isStopped() == false )
 		{
@@ -1800,7 +1800,7 @@ void AutomationEditor::play()
 		}
 		else
 		{
-			Engine::getSong()->playPattern( gui->pianoRoll()->currentPattern() );
+			Engine::getSong()->playPattern( gui->pianoRoll()->currentClip() );
 		}
 	}
 	else if( inBBEditor() )
@@ -2427,17 +2427,17 @@ AutomationEditorWindow::~AutomationEditorWindow()
 }
 
 
-void AutomationEditorWindow::setCurrentPattern(AutomationPattern* pattern)
+void AutomationEditorWindow::setCurrentClip(AutomationPattern* pattern)
 {
 	// Disconnect our old pattern
-	if (currentPattern() != nullptr)
+	if (currentClip() != nullptr)
 	{
 		m_editor->m_pattern->disconnect(this);
 		m_flipXAction->disconnect();
 		m_flipYAction->disconnect();
 	}
 
-	m_editor->setCurrentPattern(pattern);
+	m_editor->setCurrentClip(pattern);
 
 	// Set our window's title
 	if (pattern == nullptr)
@@ -2476,13 +2476,13 @@ void AutomationEditorWindow::setCurrentPattern(AutomationPattern* pattern)
 		connect(m_flipYAction, SIGNAL(triggered()), pattern, SLOT(flipY()));
 	}
 
-	emit currentPatternChanged();
+	emit currentClipChanged();
 }
 
 
-const AutomationPattern* AutomationEditorWindow::currentPattern()
+const AutomationPattern* AutomationEditorWindow::currentClip()
 {
-	return m_editor->currentPattern();
+	return m_editor->currentClip();
 }
 
 void AutomationEditorWindow::dropEvent( QDropEvent *_de )
@@ -2505,7 +2505,7 @@ void AutomationEditorWindow::dropEvent( QDropEvent *_de )
 							   embed::getIconPixmap( "automation" ),
 							   2000 );
 			}
-			setCurrentPattern( m_editor->m_pattern );
+			setCurrentClip( m_editor->m_pattern );
 		}
 	}
 
@@ -2522,7 +2522,7 @@ void AutomationEditorWindow::dragEnterEvent( QDragEnterEvent *_dee )
 
 void AutomationEditorWindow::open(AutomationPattern* pattern)
 {
-	setCurrentPattern(pattern);
+	setCurrentClip(pattern);
 	parentWidget()->show();
 	show();
 	setFocus();
@@ -2536,7 +2536,7 @@ QSize AutomationEditorWindow::sizeHint() const
 void AutomationEditorWindow::clearCurrentPattern()
 {
 	m_editor->m_pattern = nullptr;
-	setCurrentPattern(nullptr);
+	setCurrentClip(nullptr);
 }
 
 void AutomationEditorWindow::focusInEvent(QFocusEvent * event)

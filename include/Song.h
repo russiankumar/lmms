@@ -40,7 +40,7 @@
 
 
 class AutomationTrack;
-class Pattern;
+class Clip;
 class TimeLineWidget;
 
 
@@ -62,7 +62,7 @@ public:
 		Mode_None,
 		Mode_PlaySong,
 		Mode_PlayBB,
-		Mode_PlayPattern,
+		Mode_PlayClip,
 		Mode_PlayAutomationPattern,
 		Mode_Count
 	} ;
@@ -350,7 +350,7 @@ public slots:
 	void record();
 	void playAndRecord();
 	void playBB();
-	void playPattern( const Pattern * patternToPlay, bool loop = true );
+	void playPattern( const Clip * patternToPlay, bool loop = true );
 	void togglePause();
 	void stop();
 
@@ -453,7 +453,7 @@ private:
 	PlayPos m_playPos[Mode_Count];
 	bar_t m_length;
 
-	const Pattern* m_patternToPlay;
+	const Clip* m_patternToPlay;
 	bool m_loopPattern;
 
 	double m_elapsedMilliSeconds[Mode_Count];

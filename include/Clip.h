@@ -1,6 +1,6 @@
 /*
- * Pattern.h - declaration of class Pattern, which contains all information
- *             about a pattern
+ * Clip.h - declaration of class Clip, which contains all information
+ *             about a clip
  *
  * Copyright (c) 2004-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef PATTERN_H
-#define PATTERN_H
+#ifndef CLIP_H
+#define CLIP_H
 
 #include <QtCore/QVector>
 #include <QWidget>
@@ -40,19 +40,19 @@
 class InstrumentTrack;
 
 
-class LMMS_EXPORT Pattern : public TrackContentObject
+class LMMS_EXPORT Clip : public TrackContentObject
 {
 	Q_OBJECT
 public:
-	enum PatternTypes
+	enum ClipTypes
 	{
-		BeatPattern,
-		MelodyPattern
+		BeatClip,
+		MelodyClip
 	} ;
 
-	Pattern( InstrumentTrack* instrumentTrack );
-	Pattern( const Pattern& other );
-	virtual ~Pattern();
+	Clip( InstrumentTrack* instrumentTrack );
+	Clip( const Clip& other );
+	virtual ~Clip();
 
 	void init();
 
@@ -76,23 +76,23 @@ public:
 	Note * addStepNote( int step );
 	void setStep( int step, bool enabled );
 
-	// pattern-type stuff
-	inline PatternTypes type() const
+	// clip-type stuff
+	inline ClipTypes type() const
 	{
-		return m_patternType;
+		return m_clipType;
 	}
 
 
 	// next/previous track based on position in the containing track
-	Pattern * previousPattern() const;
-	Pattern * nextPattern() const;
+	Clip * previousClip() const;
+	Clip * nextClip() const;
 
 	// settings-management
 	void saveSettings( QDomDocument & _doc, QDomElement & _parent ) override;
 	void loadSettings( const QDomElement & _this ) override;
 	inline QString nodeName() const override
 	{
-		return "pattern";
+		return "clip";
 	}
 
 	inline InstrumentTrack * instrumentTrack() const
@@ -122,41 +122,41 @@ protected slots:
 
 
 private:
-	TimePos beatPatternLength() const;
+	TimePos beatClipLength() const;
 
-	void setType( PatternTypes _new_pattern_type );
+	void setType( ClipTypes new_clip_type );
 	void checkType();
 
 	void resizeToFirstTrack();
 
 	InstrumentTrack * m_instrumentTrack;
 
-	PatternTypes m_patternType;
+	ClipTypes m_clipType;
 
 	// data-stuff
 	NoteVector m_notes;
 	int m_steps;
 
-	Pattern * adjacentPatternByOffset(int offset) const;
+	Clip * adjacentClipByOffset(int offset) const;
 
-	friend class PatternView;
+	friend class ClipView;
 	friend class BBTrackContainerView;
 
 
 signals:
-	void destroyedPattern( Pattern* );
+	void destroyedClip( Clip* );
 
 } ;
 
 
 
-class PatternView : public TrackContentObjectView
+class ClipView : public TrackContentObjectView
 {
 	Q_OBJECT
 
 public:
-	PatternView( Pattern* pattern, TrackView* parent );
-	virtual ~PatternView() = default;
+	ClipView( Clip* clip, TrackView* parent );
+	virtual ~ClipView() = default;
 
 	Q_PROPERTY(QColor noteFillColor READ getNoteFillColor WRITE setNoteFillColor)
 	Q_PROPERTY(QColor noteBorderColor READ getNoteBorderColor WRITE setNoteBorderColor)
@@ -201,7 +201,7 @@ private:
 	static QPixmap * s_stepBtnOff;
 	static QPixmap * s_stepBtnOffLight;
 
-	Pattern* m_pat;
+	Clip* m_clip;
 	QPixmap m_paintPixmap;
 
 	QColor m_noteFillColor;

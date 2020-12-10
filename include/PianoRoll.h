@@ -48,9 +48,9 @@ class QScrollBar;
 class QString;
 class QMenu;
 
+class Clip;
 class ComboBox;
 class NotePlayHandle;
-class Pattern;
 class TimeLineWidget;
 
 class PianoRoll : public QWidget
@@ -105,8 +105,8 @@ public:
 	void showVolTextFloat(volume_t vol, const QPoint &pos, int timeout=-1);
 	void showPanTextFloat(panning_t pan, const QPoint &pos, int timeout=-1);
 
-	void setCurrentPattern( Pattern* newPattern );
-	void setGhostPattern( Pattern* newPattern );
+	void setCurrentClip( Clip* newClip );
+	void setGhostClip( Clip* newClip );
 	void loadGhostNotes( const QDomElement & de );
 	void loadMarkedSemiTones(const QDomElement & de);
 
@@ -125,14 +125,14 @@ public:
 		return m_stepRecorder.isRecording();
 	}
 
-	const Pattern* currentPattern() const
+	const Clip* currentClip() const
 	{
-		return m_pattern;
+		return m_clip;
 	}
 
-	bool hasValidPattern() const
+	bool hasValidClip() const
 	{
-		return m_pattern != NULL;
+		return m_clip != NULL;
 	}
 
 	Song::PlayModes desiredPlayModeForAccompany() const;
@@ -203,17 +203,17 @@ protected slots:
 	void changeNoteEditMode( int i );
 	void markSemiTone(int i, bool fromMenu = true);
 
-	void hidePattern( Pattern* pattern );
+	void hideClip( Clip* clip );
 
 	void selectRegionFromPixels( int xStart, int xEnd );
 
-	void clearGhostPattern();
+	void clearGhostClip();
 	void glueNotes();
 
 
 signals:
-	void currentPatternChanged();
-	void ghostPatternSet(bool);
+	void currentClipChanged();
+	void ghostClipSet(bool);
 	void semiToneMarkerMenuScaleSetEnabled(bool);
 	void semiToneMarkerMenuChordSetEnabled(bool);
 
@@ -320,7 +320,7 @@ private:
 	static const QVector<double> m_zoomLevels;
 	static const QVector<double> m_zoomYLevels;
 
-	Pattern* m_pattern;
+	Clip* m_clip;
 	NoteVector m_ghostNotes;
 
 	inline const NoteVector & ghostNotes() const
@@ -459,9 +459,9 @@ class PianoRollWindow : public Editor, SerializingObject
 public:
 	PianoRollWindow();
 
-	const Pattern* currentPattern() const;
-	void setCurrentPattern( Pattern* pattern );
-	void setGhostPattern( Pattern* pattern );
+	const Clip* currentClip() const;
+	void setCurrentClip( Clip* clip );
+	void setGhostClip( Clip* clip );
 
 	int quantization() const;
 
@@ -491,12 +491,12 @@ public:
 	bool hasFocus() const;
 
 signals:
-	void currentPatternChanged();
+	void currentClipChanged();
 
 
 private slots:
-	void updateAfterPatternChange();
-	void ghostPatternSet( bool state );
+	void updateAfterClipChange();
+	void ghostClipSet( bool state );
 
 private:
 	void patternRenamed();
